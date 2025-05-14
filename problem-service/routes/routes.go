@@ -8,12 +8,21 @@ import (
 )
 
 func RegisterProductRoutes(r *gin.Engine, db *gorm.DB) {
-	repo := &repository.ProductRepo{DB: db}
-	handler := &handlers.ProductHandler{Repo: repo}
+	problemRepo := &repository.ProblemRepo{DB: db}
+	problemHandler := &handlers.ProblemHandler{Repo: problemRepo}
 
-	r.POST("/products", handler.CreateProduct)
-	r.GET("/products/:id", handler.GetProduct)
-	r.PATCH("/products/:id", handler.UpdateProduct)
-	r.DELETE("/products/:id", handler.DeleteProduct)
-	r.GET("/products", handler.ListProducts)
+	r.POST("/problems", problemHandler.Create)
+	r.GET("/problems/:id", problemHandler.Get)
+	r.PATCH("/problems/:id", problemHandler.Update)
+	r.DELETE("/problems/:id", problemHandler.Delete)
+	r.GET("/problems", problemHandler.List)
+
+	categoryRepo := &repository.CategoryRepo{DB: db}
+	categoryHandler := &handlers.CategoryHandler{Repo: categoryRepo}
+
+	r.POST("/categories", categoryHandler.Create)
+	r.GET("/categories/:id", categoryHandler.Get)
+	r.PATCH("/categories/:id", categoryHandler.Update)
+	r.DELETE("/categories/:id", categoryHandler.Delete)
+	r.GET("/categories", categoryHandler.List)
 }

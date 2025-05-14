@@ -1,3 +1,3 @@
-module github.com/yourusername/leetcode-platform/gateway
+module github.com/bakhytzhanjzz/go-leetcode-platform/gateway
 
 go 1.24.3
