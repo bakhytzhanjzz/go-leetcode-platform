@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "github.com/bakhytzhanjzz/go-leetcode-platform/user-service/proto;userpb";
+
+service UserService {
+rpc GetUserByID (GetUserRequest) returns (UserResponse);
+rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse);
+}
+
+message GetUserRequest {
+uint64 id = 1;
+}
+
+message UserResponse {
+uint64 id = 1;
+string username = 2;
+string email = 3;
+}
+
+message ValidateTokenRequest {
+string token = 1;
+}
+
+message ValidateTokenResponse {
+bool valid = 1;
+uint64 user_id = 2;
+string error = 3;
+}
