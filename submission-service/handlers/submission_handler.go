@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/bakhytzhanjzz/go-leetcode-platform/submission-service/internal/grpcclient"
 	"github.com/bakhytzhanjzz/go-leetcode-platform/submission-service/models"
 	"github.com/bakhytzhanjzz/go-leetcode-platform/submission-service/repository"
 	"github.com/gin-gonic/gin"
@@ -11,7 +12,8 @@ import (
 )
 
 type SubmissionHandler struct {
-	Repo *repository.SubmissionRepo
+	Repo       *repository.SubmissionRepo
+	UserClient *grpcclient.UserClient
 }
 
 func init() {
@@ -19,13 +21,33 @@ func init() {
 }
 
 func (h *SubmissionHandler) Create(c *gin.Context) {
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing Authorization header"})
+		return
+	}
+
+	token := authHeader
+	if len(token) > 7 && token[:7] == "Bearer " {
+		token = token[7:]
+	}
+
+	userID, valid, errMsg := h.UserClient.ValidateToken(token)
+	if !valid {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token: " + errMsg})
+		return
+	}
+
 	var submission models.Submission
 	if err := c.ShouldBindJSON(&submission); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
+	// Set user ID from token validation
+	submission.UserID = uint(userID)
 	submission.Status = "Pending"
+
 	if err := h.Repo.Create(&submission); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create submission"})
 		return
