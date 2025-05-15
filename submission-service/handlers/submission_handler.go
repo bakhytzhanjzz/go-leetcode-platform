@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"fmt"
 	"github.com/bakhytzhanjzz/go-leetcode-platform/submission-service/internal/grpcclient"
+	natsclient "github.com/bakhytzhanjzz/go-leetcode-platform/submission-service/internal/nats"
 	"github.com/bakhytzhanjzz/go-leetcode-platform/submission-service/models"
 	"github.com/bakhytzhanjzz/go-leetcode-platform/submission-service/repository"
 	"github.com/gin-gonic/gin"
@@ -14,6 +16,7 @@ import (
 type SubmissionHandler struct {
 	Repo       *repository.SubmissionRepo
 	UserClient *grpcclient.UserClient
+	Publisher  *natsclient.Publisher
 }
 
 func init() {
@@ -52,6 +55,15 @@ func (h *SubmissionHandler) Create(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create submission"})
 		return
 	}
+
+	if err := h.Repo.Create(&submission); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create submission"})
+		return
+	}
+
+	// Publish submission.created event
+	eventPayload := fmt.Sprintf(`{"submission_id": %d, "user_id": %d, "problem_id": %d}`, submission.ID, submission.UserID, submission.ProblemID)
+	h.Publisher.Publish("submission.created", []byte(eventPayload))
 
 	// Start mock evaluation in background
 	go func(sub models.Submission) {

@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package problem;
+
+option go_package = "github.com/bakhytzhanjzz/go-leetcode-platform/problem-service/proto;problempb";
+
+service ProblemService {
+  rpc GetProblemByID (GetProblemRequest) returns (ProblemResponse);
+}
+
+message GetProblemRequest {
+  uint64 id = 1;
+}
+
+message ProblemResponse {
+  uint64 id = 1;
+  string title = 2;
+  string description = 3;
+  string difficulty = 4;
+}

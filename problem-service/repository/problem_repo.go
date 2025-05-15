@@ -9,6 +9,10 @@ type ProblemRepo struct {
 	DB *gorm.DB
 }
 
+func NewProblemRepo(db *gorm.DB) *ProblemRepo {
+	return &ProblemRepo{DB: db}
+}
+
 func (r *ProblemRepo) Create(problem *models.Problem) error {
 	return r.DB.Create(problem).Error
 }

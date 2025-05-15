@@ -75,3 +75,6 @@ func (h *ProblemHandler) List(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, problems)
 }
+func NewProblemHandler(repo *repository.ProblemRepo) *ProblemHandler {
+	return &ProblemHandler{Repo: repo}
+}

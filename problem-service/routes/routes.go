@@ -7,7 +7,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func RegisterProductRoutes(r *gin.Engine, db *gorm.DB) {
+func RegisterProductRoutes(r *gin.Engine, db *gorm.DB, handler *handlers.ProblemHandler) {
+	r.POST("/problems", handler.Create)
+	r.GET("/problems/:id", handler.Get)
 	problemRepo := &repository.ProblemRepo{DB: db}
 	problemHandler := &handlers.ProblemHandler{Repo: problemRepo}
 
