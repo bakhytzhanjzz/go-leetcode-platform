@@ -11,7 +11,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var jwtKey = []byte("your_secret_key") // TODO: replace with env var for production
+var jwtKey = []byte("your_secret_key") //
 
 type Claims struct {
 	UserID uint `json:"user_id"`
