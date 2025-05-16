@@ -36,3 +36,17 @@ func (r *ProblemRepo) List() ([]models.Problem, error) {
 	err := r.DB.Preload("Category").Find(&problems).Error
 	return problems, err
 }
+
+func (r *ProblemRepo) IncrementSubmissionCount(problemID uint) error {
+	return r.DB.Model(&models.Problem{}).
+		Where("id = ?", problemID).
+		UpdateColumn("submission_count", gorm.Expr("submission_count + ?", 1)).
+		Error
+}
+
+func (r *ProblemRepo) IncrementAcceptedCount(problemID uint) error {
+	return r.DB.Model(&models.Problem{}).
+		Where("id = ?", problemID).
+		UpdateColumn("accepted_count", gorm.Expr("accepted_count + ?", 1)).
+		Error
+}

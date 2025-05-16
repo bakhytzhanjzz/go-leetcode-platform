@@ -4,21 +4,17 @@ import (
 	"github.com/bakhytzhanjzz/go-leetcode-platform/problem-service/handlers"
 	"github.com/bakhytzhanjzz/go-leetcode-platform/problem-service/repository"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-func RegisterProblemRoutes(r *gin.Engine, db *gorm.DB) {
-	problemRepo := &repository.ProblemRepo{DB: db}
+func RegisterProblemRoutes(r *gin.Engine, problemRepo *repository.ProblemRepo, categoryRepo *repository.CategoryRepo) {
 	problemHandler := &handlers.ProblemHandler{Repo: problemRepo}
+	categoryHandler := &handlers.CategoryHandler{Repo: categoryRepo}
 
 	r.POST("/problems", problemHandler.Create)
 	r.GET("/problems/:id", problemHandler.Get)
 	r.PATCH("/problems/:id", problemHandler.Update)
 	r.DELETE("/problems/:id", problemHandler.Delete)
 	r.GET("/problems", problemHandler.List)
-
-	categoryRepo := &repository.CategoryRepo{DB: db}
-	categoryHandler := &handlers.CategoryHandler{Repo: categoryRepo}
 
 	r.POST("/categories", categoryHandler.Create)
 	r.GET("/categories/:id", categoryHandler.Get)
