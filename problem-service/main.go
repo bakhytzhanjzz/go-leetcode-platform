@@ -3,14 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	natsclient "github.com/bakhytzhanjzz/go-leetcode-platform/problem-service/internal/nats"
 	"github.com/bakhytzhanjzz/go-leetcode-platform/problem-service/routes"
 	"github.com/bakhytzhanjzz/go-leetcode-platform/problem-service/server"
 	"log"
 
 	"github.com/bakhytzhanjzz/go-leetcode-platform/problem-service/database"
-	"github.com/bakhytzhanjzz/go-leetcode-platform/problem-service/handlers"
-	"github.com/bakhytzhanjzz/go-leetcode-platform/problem-service/internal/nats"
-	"github.com/bakhytzhanjzz/go-leetcode-platform/problem-service/repository"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,12 +21,8 @@ type SubmissionCreatedEvent struct {
 func main() {
 	db := database.InitDB()
 	r := gin.Default()
-	repo := repository.NewProblemRepo(db)
-	handler := handlers.NewProblemHandler(repo)
-
 	// Register routes with handler
-	routes.RegisterProductRoutes(r, db)
-
+	routes.RegisterProblemRoutes(r, db)
 	// Setup NATS subscriber
 	subscriber, err := natsclient.NewSubscriber("nats://localhost:4222")
 	if err != nil {

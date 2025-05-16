@@ -4,9 +4,9 @@ import "gorm.io/gorm"
 
 type Submission struct {
 	gorm.Model
-	UserID    uint   `json:"user_id"` // Optional for now
+	UserID    uint   `json:"user_id"`
 	ProblemID uint   `json:"problem_id"`
 	Code      string `json:"code"`
 	Language  string `json:"language"`
-	Status    string `json:"status"` // e.g., "Pending", "Accepted", etc.
+	Status    string `json:"status"`
 }

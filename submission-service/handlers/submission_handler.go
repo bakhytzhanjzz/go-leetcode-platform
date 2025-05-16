@@ -10,6 +10,7 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -30,10 +31,7 @@ func (h *SubmissionHandler) Create(c *gin.Context) {
 		return
 	}
 
-	token := authHeader
-	if len(token) > 7 && token[:7] == "Bearer " {
-		token = token[7:]
-	}
+	token := strings.TrimPrefix(authHeader, "Bearer ")
 
 	userID, valid, errMsg := h.UserClient.ValidateToken(token)
 	if !valid {
@@ -46,8 +44,7 @@ func (h *SubmissionHandler) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	// Set user ID from token validation
+	submission.ID = 0
 	submission.UserID = uint(userID)
 	submission.Status = "Pending"
 
@@ -56,24 +53,16 @@ func (h *SubmissionHandler) Create(c *gin.Context) {
 		return
 	}
 
-	if err := h.Repo.Create(&submission); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create submission"})
-		return
-	}
-
-	// Publish submission.created event
+	// Publish event
 	eventPayload := fmt.Sprintf(`{"submission_id": %d, "user_id": %d, "problem_id": %d}`, submission.ID, submission.UserID, submission.ProblemID)
 	h.Publisher.Publish("submission.created", []byte(eventPayload))
 
-	// Start mock evaluation in background
+	// Simulate evaluation
 	go func(sub models.Submission) {
-		time.Sleep(3 * time.Second) // simulate judging delay
-
+		time.Sleep(3 * time.Second)
 		statuses := []string{"Accepted", "Wrong Answer", "Runtime Error"}
-		randomStatus := statuses[rand.Intn(len(statuses))]
-		sub.Status = randomStatus
-
-		_ = h.Repo.Update(&sub) // silent fail
+		sub.Status = statuses[rand.Intn(len(statuses))]
+		_ = h.Repo.Update(&sub)
 	}(submission)
 
 	c.JSON(http.StatusCreated, submission)
@@ -122,4 +111,12 @@ func (h *SubmissionHandler) UpdateStatus(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, submission)
+}
+
+func NewSubmissionHandler(repo *repository.SubmissionRepo, userClient *grpcclient.UserClient, publisher *natsclient.Publisher) *SubmissionHandler {
+	return &SubmissionHandler{
+		Repo:       repo,
+		UserClient: userClient,
+		Publisher:  publisher,
+	}
 }
