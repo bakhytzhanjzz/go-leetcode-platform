@@ -7,7 +7,7 @@ import (
 )
 
 func RegisterProblemRoutes(r *gin.Engine, problemRepo *repository.ProblemRepo, categoryRepo *repository.CategoryRepo) {
-	problemHandler := &handlers.ProblemHandler{Repo: problemRepo}
+	problemHandler := handlers.NewProblemHandler(problemRepo)
 	categoryHandler := &handlers.CategoryHandler{Repo: categoryRepo}
 
 	r.POST("/problems", problemHandler.Create)

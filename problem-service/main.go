@@ -8,6 +8,7 @@ import (
 
 	"github.com/bakhytzhanjzz/go-leetcode-platform/problem-service/database"
 	natsclient "github.com/bakhytzhanjzz/go-leetcode-platform/problem-service/internal/nats"
+	"github.com/bakhytzhanjzz/go-leetcode-platform/problem-service/internal/pkg"
 	"github.com/bakhytzhanjzz/go-leetcode-platform/problem-service/repository"
 	"github.com/bakhytzhanjzz/go-leetcode-platform/problem-service/routes"
 	"github.com/bakhytzhanjzz/go-leetcode-platform/problem-service/server"
@@ -23,9 +24,11 @@ type SubmissionCreatedEvent struct {
 func main() {
 	db := database.InitDB()
 	db.AutoMigrate(&models.Problem{})
+	redisClient := pkg.NewRedisClient("localhost:6379", "", 0)
+
 	r := gin.Default()
 
-	problemRepo := repository.NewProblemRepo(db)
+	problemRepo := repository.NewProblemRepo(db, redisClient)
 	categoryRepo := repository.NewCategoryRepo(db)
 
 	// Pass actual repos instead of raw db

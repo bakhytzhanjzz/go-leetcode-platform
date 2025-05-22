@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/bakhytzhanjzz/go-leetcode-platform/problem-service/internal/pkg"
 	"github.com/bakhytzhanjzz/go-leetcode-platform/problem-service/models"
 	"github.com/bakhytzhanjzz/go-leetcode-platform/problem-service/repository"
 	"github.com/gin-gonic/gin"
@@ -9,7 +10,8 @@ import (
 )
 
 type ProblemHandler struct {
-	Repo *repository.ProblemRepo
+	Repo  *repository.ProblemRepo
+	Cache *pkg.RedisClient
 }
 
 func (h *ProblemHandler) Create(c *gin.Context) {
@@ -76,5 +78,8 @@ func (h *ProblemHandler) List(c *gin.Context) {
 	c.JSON(http.StatusOK, problems)
 }
 func NewProblemHandler(repo *repository.ProblemRepo) *ProblemHandler {
-	return &ProblemHandler{Repo: repo}
+	return &ProblemHandler{
+		Repo:  repo,
+		Cache: repo.Cache, // if Cache is a field on ProblemRepo
+	}
 }
