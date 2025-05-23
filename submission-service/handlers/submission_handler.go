@@ -74,7 +74,8 @@ func (h *SubmissionHandler) Create(c *gin.Context) {
 		h.Publisher.Publish("user.notify", []byte(notifyMsg))
 	}(submission)
 
-	c.JSON(http.StatusCreated, submission)
+	c.JSON(http.StatusCreated, gin.H{"id": submission.ID})
+
 }
 
 func (h *SubmissionHandler) Get(c *gin.Context) {
